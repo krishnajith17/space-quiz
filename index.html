@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AstroMobbin — Space Quiz</title>
+  <meta name="description" content="Interactive space knowledge quiz with timer, scoring, and Excel result tracking.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/quiz.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><text y='22' font-size='22'>🪐</text></svg>">
+</head>
+<body>
+
+  <!-- Canvas Starfield Background -->
+  <canvas id="starfield" aria-hidden="true"></canvas>
+
+  <div class="shell">
+
+    <!-- Top Logo Bar -->
+    <div class="top-bar">
+      <div class="logo">
+        <div class="logo-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <circle cx="12" cy="12" r="7"/>
+            <ellipse cx="12" cy="12" rx="11" ry="4" transform="rotate(-30 12 12)"/>
+            <circle cx="12" cy="12" r="2" fill="currentColor"/>
+          </svg>
+        </div>
+        <span>ASTROMOBBIN</span>
+        <span class="logo-badge">SPACE QUIZ</span>
+      </div>
+      <span style="font-size:0.78rem; color:var(--text-3); font-family:var(--mono);">10 Questions · Randomized Each Session</span>
+    </div>
+
+    <!-- ====================================================================
+         SCREEN 1 — WELCOME
+         ==================================================================== -->
+    <div class="screen active" id="screenWelcome">
+      <div class="welcome-hero">
+        <div class="orbit-icon">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="6"/>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+            <line x1="2" y1="12" x2="22" y2="12"/>
+          </svg>
+        </div>
+
+        <h1 class="welcome-title">Space Intelligence<br>Quiz Challenge</h1>
+        <p class="welcome-sub">
+          Test your knowledge of the cosmos — from black holes and supernovae to Mars rovers and the Big Bang.
+          10 randomized questions, each uniquely selected for your session.
+        </p>
+
+        <div class="stat-row">
+          <div class="stat-box">
+            <div class="stat-n">30</div>
+            <div class="stat-l">Question Bank</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-n">10</div>
+            <div class="stat-l">Per Session</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-n">3</div>
+            <div class="stat-l">Difficulty Tiers</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-n">Excel</div>
+            <div class="stat-l">Results Export</div>
+          </div>
+        </div>
+
+        <button class="btn btn-primary btn-lg" id="btnStart">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <polygon points="5 3 19 12 5 21 5 3"/>
+          </svg>
+          Start Mission
+        </button>
+      </div>
+    </div>
+
+    <!-- ====================================================================
+         SCREEN 2 — TIMER SETUP
+         ==================================================================== -->
+    <div class="screen" id="screenTimer">
+      <div class="setup-card">
+        <h2 class="card-heading">⏱ Set Timer Per Question</h2>
+        <p class="card-sub">
+          Choose how many seconds you get per question.
+          The timer starts fresh on each new question.
+        </p>
+
+        <div class="section-heading">Quick Presets</div>
+        <div class="timer-presets">
+          <button class="preset-btn" data-secs="15">15s<br><small>Speed Run</small></button>
+          <button class="preset-btn selected" data-secs="30">30s<br><small>Standard</small></button>
+          <button class="preset-btn" data-secs="45">45s<br><small>Relaxed</small></button>
+          <button class="preset-btn" data-secs="60">60s<br><small>Thinker</small></button>
+        </div>
+
+        <div class="custom-timer-row">
+          <label for="customTimerInput">Custom (5 – 300 sec):</label>
+          <input type="number" id="customTimerInput" class="custom-timer-input"
+                 min="5" max="300" placeholder="sec">
+        </div>
+
+        <div class="divider"></div>
+
+        <button class="btn btn-primary btn-md full-w" id="btnTimerNext">
+          Continue
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M5 12h14m-7-7 7 7-7 7"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- ====================================================================
+         SCREEN 3 — USER INFO
+         ==================================================================== -->
+    <div class="screen" id="screenInfo">
+      <div class="setup-card">
+        <h2 class="card-heading">🧑‍🚀 Your Details</h2>
+        <p class="card-sub">
+          Your name, department, and last 5 digits of your ID are saved with your score.
+          Repeated attempts are tracked automatically as separate trials.
+        </p>
+
+        <div class="info-form">
+          <div class="form-group">
+            <label class="form-label" for="inputName">Full Name</label>
+            <input type="text" id="inputName" class="form-input"
+                   placeholder="e.g. Priya Krishnamurthy" autocomplete="name" maxlength="80">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="inputDept">Department</label>
+            <input type="text" id="inputDept" class="form-input"
+                   placeholder="e.g. Computer Science" autocomplete="organization" maxlength="80">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="inputId5">Last 5 Digits of ID / Roll No.</label>
+            <input type="text" id="inputId5" class="form-input"
+                   placeholder="e.g. 20045" maxlength="5" pattern="\d{5}"
+                   inputmode="numeric" autocomplete="off">
+            <span class="form-hint">Exactly 5 numeric digits — used to identify repeat attempts.</span>
+          </div>
+
+          <div class="error-msg" id="infoError"></div>
+
+          <div style="display:flex; gap:0.75rem; margin-top:0.25rem;">
+            <button class="btn btn-ghost btn-md" id="btnInfoBack">← Back</button>
+            <button class="btn btn-primary btn-md" id="btnBeginQuiz" style="flex:1;">
+              Begin Mission
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====================================================================
+         SCREEN 4 — QUIZ DASHBOARD
+         ==================================================================== -->
+    <div class="screen" id="screenQuiz">
+
+      <!-- Progress / Score header -->
+      <div class="quiz-header">
+        <div class="quiz-header-top">
+          <span class="q-label" id="qLabel">Question 1 of 10</span>
+          <span class="score-badge" id="scoreBadge">Score: 0</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progressFill" style="width:0%"></div>
+        </div>
+      </div>
+
+      <!-- Countdown Timer Ring (centered above question) -->
+      <div class="timer-wrap">
+        <div class="timer-ring-container">
+          <svg class="timer-ring-svg" viewBox="0 0 100 100">
+            <circle class="timer-ring-bg" cx="50" cy="50" r="40"/>
+            <circle class="timer-ring-fg" id="timerRing"
+                    cx="50" cy="50" r="40"
+                    stroke-dasharray="251.2"
+                    stroke-dashoffset="0"/>
+          </svg>
+          <span class="timer-center-text" id="timerText">30</span>
+        </div>
+        <span class="timer-sub-text">seconds remaining</span>
+      </div>
+
+      <!-- Question Card -->
+      <div class="question-card">
+        <span class="difficulty-chip diff-easy" id="difficultyChip">Easy</span>
+        <p class="question-text" id="questionText">Question loads here...</p>
+      </div>
+
+      <!-- Answer Options (2-column grid, one-word answers) -->
+      <div class="options-grid" id="optionsGrid">
+        <!-- Rendered by JS -->
+      </div>
+
+      <!-- Explanation (shown after answering or timeout) -->
+      <div class="explanation-box" id="explanationBox" style="display:none; margin-top:1rem;">
+        <div class="explanation-badge correct" id="expBadge">Correct!</div>
+        <p class="explanation-text" id="expText"></p>
+      </div>
+
+      <!-- Next / Finish button -->
+      <button class="btn btn-primary btn-md mt-2" id="btnNext" style="display:none; align-self:flex-end;">
+        Next Question →
+      </button>
+
+    </div><!-- end screenQuiz -->
+
+    <!-- ====================================================================
+         SCREEN 5 — RESULTS
+         ==================================================================== -->
+    <div class="screen" id="screenResults">
+
+      <!-- Rank & Name Banner -->
+      <div class="results-card">
+        <div class="results-rank-icon" id="resultRankIcon">🚀</div>
+        <h2 class="results-rank-title" id="resultRankTitle">Mission Complete</h2>
+        <p class="results-rank-sub" id="resultRankSub"></p>
+      </div>
+
+      <!-- Score Metrics -->
+      <div class="metrics-grid">
+        <div class="metric-tile">
+          <div class="metric-value" id="metricScore" style="color:var(--cyan);">0</div>
+          <div class="metric-label" id="metricScoreLbl">Score / 10</div>
+        </div>
+        <div class="metric-tile">
+          <div class="metric-value" id="metricPct">0%</div>
+          <div class="metric-label">Accuracy</div>
+        </div>
+        <div class="metric-tile">
+          <div class="metric-value" id="metricTime" style="font-size:1.2rem;">—</div>
+          <div class="metric-label">Time Taken</div>
+        </div>
+      </div>
+
+      <!-- Excel Save Status -->
+      <div class="save-status saving" id="saveStatus" style="display:none;">
+        <div class="spinner"></div> Saving to Excel...
+      </div>
+
+      <!-- Actions -->
+      <div class="results-actions">
+        <button class="btn btn-primary btn-md" id="btnTryAgain">
+          🔁 Try Again (Same Name)
+        </button>
+        <button class="btn btn-ghost btn-md" id="btnNewUser">
+          👤 New User
+        </button>
+      </div>
+
+    </div><!-- end screenResults -->
+
+  </div><!-- end .shell -->
+
+  <!-- Scripts (order matters: questions first, then canvas, then quiz logic) -->
+  <script src="js/questions.js"></script>
+  <script src="js/canvas-starfield.js"></script>
+  <script src="js/quiz.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,20 @@
+{
+  "name": "astromobbin-space-quiz",
+  "version": "1.0.0",
+  "description": "Curated Space Quiz & Cosmic Intelligence Platform inspired by Mobbin design",
+  "main": "index.html",
+  "scripts": {
+    "start": "python server.py",
+    "serve": "npx serve -l 5000"
+  },
+  "keywords": [
+    "space",
+    "quiz",
+    "mobbin",
+    "astrophysics",
+    "nasa",
+    "cosmos"
+  ],
+  "author": "Antigravity Pair Programmer",
+  "license": "MIT"
+}
